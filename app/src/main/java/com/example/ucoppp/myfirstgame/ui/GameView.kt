@@ -1,8 +1,13 @@
 package com.example.ucoppp.myfirstgame.ui
 
 import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.util.Log
 import android.view.SurfaceView
+import com.example.ucoppp.myfirstgame.model.Player
+
 
 class GameView(context: Context?) : SurfaceView(context), Runnable {
 
@@ -13,6 +18,25 @@ class GameView(context: Context?) : SurfaceView(context), Runnable {
     // the game thread
     private val gameThread by lazy {
         Thread(this)
+    }
+
+    //adding the player to this class
+    private val player by lazy {
+        Player(context!!)
+    }
+
+    //These objects will be used for drawing
+    private val paint by lazy {
+        Paint()
+    }
+    private var canvas: Canvas? = null
+
+    private val surfaceHolder by lazy {
+        holder
+    }
+
+    init {
+
     }
 
     override fun run() {
@@ -34,6 +58,16 @@ class GameView(context: Context?) : SurfaceView(context), Runnable {
 
     private fun draw() {
         //  Here we will draw the characters to the canvas.
+
+        // 1. checking if surface is valid
+        if (surfaceHolder.surface.isValid) {
+            // For some reason I can't use lazy for lockCanvas()
+            canvas = surfaceHolder.lockCanvas()
+
+            canvas?.let(this::setUpCanvas)
+
+            surfaceHolder.unlockCanvasAndPost(canvas)
+        }
     }
 
     private fun control() {
@@ -66,6 +100,16 @@ class GameView(context: Context?) : SurfaceView(context), Runnable {
         // To resume the game, here we are starting the gameThread.
         playing = true
         gameThread.start()
+    }
+
+    private fun setUpCanvas(canvas: Canvas) {
+        canvas.drawColor(Color.BLACK)
+        //Drawing the player
+        canvas.drawBitmap(
+                player.playerBitmap,
+                player.playerX,
+                player.playerY,
+                paint)
     }
 
 }
