@@ -1,10 +1,12 @@
 package com.example.ucoppp.myfirstgame.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.Log
+import android.view.MotionEvent
 import android.view.SurfaceView
 import com.example.ucoppp.myfirstgame.model.Player
 
@@ -16,28 +18,17 @@ class GameView(context: Context?) : SurfaceView(context), Runnable {
     var playing: Boolean = false
 
     // the game thread
-    private val gameThread by lazy {
-        Thread(this)
-    }
+    private val gameThread by lazy { Thread(this) }
 
     //adding the player to this class
-    private val player by lazy {
-        Player(context!!)
-    }
+    private val player by lazy { Player(context!!) }
 
     //These objects will be used for drawing
-    private val paint by lazy {
-        Paint()
-    }
+    private val paint by lazy { Paint() }
+
     private var canvas: Canvas? = null
 
-    private val surfaceHolder by lazy {
-        holder
-    }
-
-    init {
-
-    }
+    private val surfaceHolder by lazy { holder }
 
     override fun run() {
         while (playing) {
@@ -112,4 +103,13 @@ class GameView(context: Context?) : SurfaceView(context), Runnable {
                 paint)
     }
 
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        when(event!!.action and MotionEvent.ACTION_MASK){
+            MotionEvent.ACTION_UP -> {}
+            MotionEvent.ACTION_DOWN -> {}
+            else -> {}
+        }
+
+        return true
+    }
 }
