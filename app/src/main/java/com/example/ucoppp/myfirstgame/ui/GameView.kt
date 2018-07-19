@@ -1,6 +1,5 @@
 package com.example.ucoppp.myfirstgame.ui
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -9,6 +8,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceView
 import com.example.ucoppp.myfirstgame.model.Player
+import com.example.ucoppp.myfirstgame.model.Star
 
 
 class GameView(context: Context?) : SurfaceView(context), Runnable {
@@ -21,7 +21,7 @@ class GameView(context: Context?) : SurfaceView(context), Runnable {
     private val gameThread by lazy { Thread(this) }
 
     //adding the player to this class
-    private val player by lazy { Player(context!!) }
+    private var player: Player? = null
 
     //These objects will be used for drawing
     private val paint by lazy { Paint() }
@@ -29,6 +29,18 @@ class GameView(context: Context?) : SurfaceView(context), Runnable {
     private var canvas: Canvas? = null
 
     private val surfaceHolder by lazy { holder }
+
+    //Adding an stars list
+    private val stars = ArrayList<Star>()
+
+    constructor(context: Context?, screenX: Int, screenY: Int) : this(context) {
+
+        player = Player(context!!, screenX, screenY)
+
+        Array(100) { it }.map {
+            stars.add(Star(screenX, screenY))
+        }
+    }
 
     override fun run() {
         while (playing) {
@@ -45,6 +57,11 @@ class GameView(context: Context?) : SurfaceView(context), Runnable {
 
     private fun update() {
         // Here we will update the coordinate of our characters.
+        player?.update()
+
+        stars.forEach {
+            it.update(player!!.speed.toDouble())
+        }
     }
 
     private fun draw() {
@@ -54,8 +71,13 @@ class GameView(context: Context?) : SurfaceView(context), Runnable {
         if (surfaceHolder.surface.isValid) {
             // For some reason I can't use lazy for lockCanvas()
             canvas = surfaceHolder.lockCanvas()
-
             canvas?.let(this::setUpCanvas)
+            paint.color = Color.WHITE
+
+            stars.forEach {
+                paint.strokeWidth = it.getStarWidth()
+                canvas!!.drawPoint(it.x.toFloat(), it.y.toFloat(), paint)
+            }
 
             surfaceHolder.unlockCanvasAndPost(canvas)
         }
@@ -97,17 +119,22 @@ class GameView(context: Context?) : SurfaceView(context), Runnable {
         canvas.drawColor(Color.BLACK)
         //Drawing the player
         canvas.drawBitmap(
-                player.playerBitmap,
-                player.playerX,
-                player.playerY,
+                player?.playerBitmap,
+                player?.playerX!!,
+                player?.playerY!!,
                 paint)
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        when(event!!.action and MotionEvent.ACTION_MASK){
-            MotionEvent.ACTION_UP -> {}
-            MotionEvent.ACTION_DOWN -> {}
-            else -> {}
+        when (event!!.action and MotionEvent.ACTION_MASK) {
+            MotionEvent.ACTION_UP -> {
+                player?.setBoosting()
+            }
+            MotionEvent.ACTION_DOWN -> {
+                player?.stopBoosting()
+            }
+            else -> {
+            }
         }
 
         return true
