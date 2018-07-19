@@ -7,9 +7,9 @@ import android.graphics.Paint
 import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceView
+import com.example.ucoppp.myfirstgame.model.Enemy
 import com.example.ucoppp.myfirstgame.model.Player
 import com.example.ucoppp.myfirstgame.model.Star
-
 
 class GameView(context: Context?) : SurfaceView(context), Runnable {
 
@@ -33,12 +33,23 @@ class GameView(context: Context?) : SurfaceView(context), Runnable {
     //Adding an stars list
     private val stars = ArrayList<Star>()
 
+    //Adding 3 enemies you may increase the size
+    private var enemyCount = 3
+
+    //Adding enemies object array
+    private var enemies: Array<Enemy>? = null
+
     constructor(context: Context?, screenX: Int, screenY: Int) : this(context) {
 
         player = Player(context!!, screenX, screenY)
 
         Array(100) { it }.map {
             stars.add(Star(screenX, screenY))
+        }
+
+        enemies = Array(3) { Enemy(context, screenX, screenY) }
+        for (i in 0 until enemyCount) {
+            enemies!![i] = Enemy(context, screenX, screenY)
         }
     }
 
@@ -62,6 +73,10 @@ class GameView(context: Context?) : SurfaceView(context), Runnable {
         stars.forEach {
             it.update(player!!.speed.toDouble())
         }
+
+        enemies!!.map {
+            it.update(player!!.speed.toInt())
+        }
     }
 
     private fun draw() {
@@ -77,6 +92,15 @@ class GameView(context: Context?) : SurfaceView(context), Runnable {
             stars.forEach {
                 paint.strokeWidth = it.getStarWidth()
                 canvas!!.drawPoint(it.x.toFloat(), it.y.toFloat(), paint)
+            }
+
+            enemies!!.map {
+                canvas!!.drawBitmap(
+                        it.bitmap,
+                        it.x.toFloat(),
+                        it.y.toFloat(),
+                        paint
+                )
             }
 
             surfaceHolder.unlockCanvasAndPost(canvas)
