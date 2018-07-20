@@ -3,6 +3,7 @@ package com.example.ucoppp.myfirstgame.model
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Rect
 import com.example.ucoppp.myfirstgame.R
 
 class Player(private val context: Context, screenX: Int, screenY: Int) {
@@ -30,6 +31,8 @@ class Player(private val context: Context, screenX: Int, screenY: Int) {
     private val minSpeed: Float = 1f
     private val maxSpeed: Float = 20f
 
+    var detectCollision: Rect? = null
+
     init {
         maxY = (screenY - playerBitmap.height).toFloat()
 
@@ -39,12 +42,21 @@ class Player(private val context: Context, screenX: Int, screenY: Int) {
         //setting the boosting value to false initially
         boosting = false
 
+        //initializing rect object
+        detectCollision = Rect(playerX.toInt(), playerY.toInt(), playerBitmap.width, playerBitmap.height)
+
     }
 
     fun update() {
         checkBoosting()
 
         setSpeed()
+
+        //Adding the top, left, bottom and right to the rect object
+        detectCollision!!.left = playerX.toInt()
+        detectCollision!!.top = playerY.toInt()
+        detectCollision!!.right = playerX.toInt() + playerBitmap.width
+        detectCollision!!.bottom = playerY.toInt() + playerBitmap.height
 
     }
 

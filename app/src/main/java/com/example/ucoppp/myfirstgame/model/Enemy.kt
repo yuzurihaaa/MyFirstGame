@@ -3,6 +3,7 @@ package com.example.ucoppp.myfirstgame.model
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Rect
 import com.example.ucoppp.myfirstgame.R
 import java.util.*
 
@@ -28,6 +29,8 @@ class Enemy(context: Context, screenX: Int, screenY: Int) {
 
     var generator = Random()
 
+    var detectCollision: Rect? = null
+
     init {
         bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.enemy)
 
@@ -40,6 +43,10 @@ class Enemy(context: Context, screenX: Int, screenY: Int) {
         speed = generator.nextInt(6) + 10
         x = screenX
         y = generator.nextInt(maxY) - bitmap!!.height
+
+        //initializing rect object
+        detectCollision = Rect(x, y, bitmap!!.width, bitmap!!.height)
+
     }
 
     fun update(playerSpeed: Int) {
@@ -54,5 +61,11 @@ class Enemy(context: Context, screenX: Int, screenY: Int) {
             x = maxX
             y = generator.nextInt(maxY) - bitmap!!.height
         }
+
+        //Adding the top, left, bottom and right to the rect object
+        detectCollision!!.left = x
+        detectCollision!!.top = y
+        detectCollision!!.right = x + bitmap!!.width
+        detectCollision!!.bottom = y + bitmap!!.height
     }
 }

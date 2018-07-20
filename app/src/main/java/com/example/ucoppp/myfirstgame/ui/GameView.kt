@@ -4,9 +4,11 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Rect
 import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceView
+import com.example.ucoppp.myfirstgame.model.Boom
 import com.example.ucoppp.myfirstgame.model.Enemy
 import com.example.ucoppp.myfirstgame.model.Player
 import com.example.ucoppp.myfirstgame.model.Star
@@ -39,6 +41,8 @@ class GameView(context: Context?) : SurfaceView(context), Runnable {
     //Adding enemies object array
     private var enemies: Array<Enemy>? = null
 
+    private var boom: Boom? = null
+
     constructor(context: Context?, screenX: Int, screenY: Int) : this(context) {
 
         player = Player(context!!, screenX, screenY)
@@ -51,6 +55,8 @@ class GameView(context: Context?) : SurfaceView(context), Runnable {
         for (i in 0 until enemyCount) {
             enemies!![i] = Enemy(context, screenX, screenY)
         }
+
+        boom = Boom(context)
     }
 
     override fun run() {
@@ -70,12 +76,23 @@ class GameView(context: Context?) : SurfaceView(context), Runnable {
         // Here we will update the coordinate of our characters.
         player?.update()
 
+        //setting boom outside the screen
+        boom!!.x = -250
+        boom!!.y = -250
+
         stars.forEach {
             it.update(player!!.speed.toDouble())
         }
 
         enemies!!.map {
             it.update(player!!.speed.toInt())
+
+            if (Rect.intersects(player!!.detectCollision, it.detectCollision)) {
+
+                boom!!.x = it.x
+                boom!!.y = it.y
+                it.x = -200
+            }
         }
     }
 
@@ -102,6 +119,14 @@ class GameView(context: Context?) : SurfaceView(context), Runnable {
                         paint
                 )
             }
+
+            //drawing boom image
+            canvas!!.drawBitmap(
+                    boom!!.bitmap,
+                    boom!!.x.toFloat(),
+                    boom!!.y.toFloat(),
+                    paint
+            )
 
             surfaceHolder.unlockCanvasAndPost(canvas)
         }
